@@ -5,6 +5,7 @@ const passport = require('passport');
 const jwt = require('jsonwebtoken');
 const mongoose = require('mongoose');
 const User = require('./models/user.js');
+const sms = require('./sms.js');
 
 const app = express();
 
@@ -77,9 +78,9 @@ apiRoutes.post('/authenticate', function(req, res) {
           var token = jwt.sign(user, process.env.JWT_SECRET, {
             expiresIn: 10080 // in seconds
           });
-          res.json({ success: true, token: 'JWT ' + token });
+          res.json({ success: true, token: 'Bearer ' + token });
         } else {
-          res.send({ success: false, message: 'Authentication failed. Passwords did not match.' });
+          res.json({ success: false, message: 'Authentication failed. Passwords did not match.' });
         }
       });
     }
@@ -88,12 +89,16 @@ apiRoutes.post('/authenticate', function(req, res) {
 
 // Protect dashboard route with JWT
 apiRoutes.get('/dashboard', passport.authenticate('jwt', { session: false }), function(req, res) {
-  res.send('It worked! User id is: ' + req.user._id + '.');
+  res.json({success:true,message:'It worked! User id is: ' + req.user._id + '.'});
 });
-
+app.get('/sms', function (req, res) {
+  sms.sendSMS();
+  res.json('SMS')
+})
 app.get('/', function (req, res) {
   res.send('hello world')
 })
+
 app.use('/api', apiRoutes);
 
 app.listen(3000, function () {
