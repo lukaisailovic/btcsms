@@ -2,9 +2,8 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const helmet = require('helmet');
 const passport = require('passport');
-const jwt = require('jsonwebtoken');
+const AuthController = require('./controllers/AuthController');
 const mongoose = require('mongoose');
-const User = require('./models/user.js');
 const sms = require('./sms.js');
 
 const app = express();
@@ -38,57 +37,14 @@ mongoose.connect(process.env.DATABASE_URL);
  * Routes
  */
 
-let apiRoutes = express.Router();
-apiRoutes.post('/register',function(req,res) {
-  if (!req.body.username || !req.body.password) {
-    res.json({ success: false , message: 'Please populate all fields'});
-  } else {
-    let newUser = new User({
-      username: req.body.username,
-      password: req.body.password
-    });
-
-    newUser.save(function(err) {
-      if (err) {
-        console.log(err)
-        res.json({ success: false , message: 'That username already exists'});
-      }
-      res.json({ success: true , message: 'Successfully created new user'});
-    });
-  }
-});
-
-
-
+let AuthRoutes = express.Router();
+AuthRoutes.post('/register',AuthController.Register);
 
 // Authenticate the user and get a JSON Web Token to include in the header of future requests.
-apiRoutes.post('/authenticate', function(req, res) {
-  User.findOne({
-    username: req.body.username
-  }, function(err, user) {
-    if (err) throw err;
-
-    if (!user) {
-      res.send({ success: false, message: 'Authentication failed. User not found.' });
-    } else {
-      // Check if password matches
-      user.comparePassword(req.body.password, function(err, isMatch) {
-        if (isMatch && !err) {
-          // Create token if the password matched and no error was thrown
-          var token = jwt.sign(user, process.env.JWT_SECRET, {
-            expiresIn: 10080 // in seconds
-          });
-          res.json({ success: true, token: 'Bearer ' + token });
-        } else {
-          res.json({ success: false, message: 'Authentication failed. Passwords did not match.' });
-        }
-      });
-    }
-  });
-});
+AuthRoutes.post('/authenticate',AuthController.Authenticate );
 
 // Protect dashboard route with JWT
-apiRoutes.get('/dashboard', passport.authenticate('jwt', { session: false }), function(req, res) {
+app.get('/dashboard', passport.authenticate('jwt', { session: false }), function(req, res) {
   res.json({success:true,message:'It worked! User id is: ' + req.user._id + '.'});
 });
 app.get('/sms', function (req, res) {
@@ -99,7 +55,7 @@ app.get('/', function (req, res) {
   res.send('hello world')
 })
 
-app.use('/api', apiRoutes);
+app.use('/auth', AuthRoutes);
 
 app.listen(3000, function () {
   console.log('App ['+process.env.APP_NAME+'] listent on port 3000')
