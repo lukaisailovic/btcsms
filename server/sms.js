@@ -1,5 +1,4 @@
-//const twilio = require('twilio');
-//const client = new twilio(process.env.TWILIO_SID,process.env.)
+
 const phone = require('phone');
 const countries = require('i18n-iso-countries');
 
@@ -8,12 +7,12 @@ const client = require('twilio')(
   process.env.TWILIO_SID,
   process.env.TWILIO_TOKEN
 );
-const accountSid = 'AC3d1109ce9a5e35c2f2e23d63f3d6f57c';
-const authToken = 'your_auth_token';
+
 
 module.exports = {
    getPrice,
    sendSMS,
+   checkNumber
 }
 
  function sendSMS(){
@@ -66,3 +65,8 @@ function getPrice(userNumber) {
   });
 
 } // end of getPrice
+
+function checkNumber(numberToCheck) {
+  let number = phone(numberToCheck);
+  return number !== null  
+}

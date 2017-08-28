@@ -48,7 +48,6 @@ function Register(req,res) {
 
         newUser.save(function(err) {
           if (err) {
-            console.log(err)
             res.json({ success: false , message: 'Could not save user'});
           }
           res.json({ success: true , message: 'Successfully created new user'});

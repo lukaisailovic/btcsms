@@ -45,7 +45,7 @@ AuthRoutes.post('/authenticate',AuthController.Authenticate );
 
 // Protect dashboard route with JWT
 app.get('/dashboard', passport.authenticate('jwt', { session: false }), function(req, res) {
-  res.json({success:true,message:'It worked! User id is: ' + req.user._id + '.'});
+  res.json({success:true ,message:'It worked! User id is: ' + req.user._id + '.'});
 });
 app.get('/sms', function (req, res) {
   sms.sendSMS();
