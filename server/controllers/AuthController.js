@@ -13,7 +13,7 @@ function Authenticate(req, res) {
     if (err) throw err;
 
     if (!user) {
-      res.send({ success: false, message: 'Authentication failed. User not found.' });
+      res.send({ success: false, message: 'User not found.' });
     } else {
       // Check if password matches
       user.comparePassword(req.body.password, function(err, isMatch) {
@@ -22,9 +22,9 @@ function Authenticate(req, res) {
           var token = jwt.sign(user, process.env.JWT_SECRET, {
             expiresIn: 10080 // in seconds
           });
-          res.json({ success: true, token: 'Bearer ' + token });
+          res.json({ success: true, token: 'Bearer ' + token});
         } else {
-          res.json({ success: false, message: 'Authentication failed. Passwords did not match.' });
+          res.json({ success: false, message: 'Passwords did not match.' });
         }
       });
     }

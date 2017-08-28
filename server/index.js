@@ -5,6 +5,7 @@ const passport = require('passport');
 const AuthController = require('./controllers/AuthController');
 const mongoose = require('mongoose');
 const sms = require('./sms.js');
+const cors = require('cors');
 
 const app = express();
 
@@ -14,6 +15,12 @@ console.log('Starting server');
  * Helmet
  */
 app.use(helmet())
+
+/**
+ * CORS
+ */
+
+app.use(cors()) 
 /**
  * body-parser
  */
