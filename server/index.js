@@ -20,7 +20,7 @@ app.use(helmet())
  * CORS
  */
 
-app.use(cors()) 
+app.use(cors())
 /**
  * body-parser
  */
@@ -43,12 +43,11 @@ mongoose.connect(process.env.DATABASE_URL);
 /**
  * Routes
  */
-
 let AuthRoutes = express.Router();
 AuthRoutes.post('/register',AuthController.Register);
 
 // Authenticate the user and get a JSON Web Token to include in the header of future requests.
-AuthRoutes.post('/authenticate',AuthController.Authenticate );
+AuthRoutes.post('/signin',AuthController.Authenticate );
 
 // Protect dashboard route with JWT
 app.get('/dashboard', passport.authenticate('jwt', { session: false }), function(req, res) {
