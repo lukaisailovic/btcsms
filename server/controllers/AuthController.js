@@ -2,11 +2,12 @@ const User = require('../models/user.js');
 const jwt = require('jsonwebtoken');
 module.exports = {
   Authenticate,
-  Register
+  Register,
+  GetUser
 };
 
 function Authenticate(req, res) {
-
+  //console.log('USERNAME:' +req.body.username)
   User.findOne({
     username: req.body.username
   }, function(err, user) {
@@ -22,9 +23,9 @@ function Authenticate(req, res) {
           var token = jwt.sign(user, process.env.JWT_SECRET, {
             expiresIn: 10080 // in seconds
           });
-          res.json({ success: true, token: 'Bearer ' + token});
+          res.json({ success: true, token: 'Bearer ' + token,user:user});
         } else {
-          res.json({ success: false, message: 'Passwords did not match.' });
+          res.json({ success: false, message: 'Username and password don\'t match' });
         }
       });
     }
@@ -39,7 +40,9 @@ function Register(req,res) {
     User.findOne({
       username:req.body.username
     },function(err,user) {
-      if (err) throw err;
+      if (err) {
+        res.json({ success: false , message: err});
+      }
       if (!user) {
         let newUser = new User({
           username: req.body.username,
@@ -50,7 +53,7 @@ function Register(req,res) {
           if (err) {
             res.json({ success: false , message: 'Could not save user'});
           }
-          res.json({ success: true , message: 'Successfully created new user'});
+          res.json({ success: true , message: 'Registration successfully completed. You can sign in now'});
         });
 
 
@@ -60,4 +63,10 @@ function Register(req,res) {
     });
 
   }
+}
+
+
+function GetUser(req,res) {
+      //console.log('AUTH USER '+req.user);
+      res.json({success:true ,user:req.user});
 }

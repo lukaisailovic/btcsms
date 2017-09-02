@@ -3,6 +3,7 @@ const bodyParser = require('body-parser');
 const helmet = require('helmet');
 const passport = require('passport');
 const AuthController = require('./controllers/AuthController');
+const SMSController = require('./controllers/SMSController');
 const mongoose = require('mongoose');
 const sms = require('./sms.js');
 const cors = require('cors');
@@ -44,19 +45,25 @@ mongoose.connect(process.env.DATABASE_URL);
  * Routes
  */
 let AuthRoutes = express.Router();
+
 AuthRoutes.post('/register',AuthController.Register);
 
 // Authenticate the user and get a JSON Web Token to include in the header of future requests.
 AuthRoutes.post('/signin',AuthController.Authenticate );
 
+
+AuthRoutes.get('/user',passport.authenticate('jwt', { session: false }),AuthController.GetUser);
 // Protect dashboard route with JWT
 app.get('/dashboard', passport.authenticate('jwt', { session: false }), function(req, res) {
   res.json({success:true ,message:'It worked! User id is: ' + req.user._id + '.'});
 });
+
 app.get('/sms', function (req, res) {
   sms.sendSMS();
   res.json('SMS')
 })
+app.post('/number/check', SMSController.checkNumber);
+app.post('/number/price',SMSController.getPriceForNumber);
 app.get('/', function (req, res) {
   res.send('hello world')
 })

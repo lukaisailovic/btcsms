@@ -68,5 +68,5 @@ function getPrice(userNumber) {
 
 function checkNumber(numberToCheck) {
   let number = phone(numberToCheck);
-  return number !== null  
+  return number.length !== 0;
 }
