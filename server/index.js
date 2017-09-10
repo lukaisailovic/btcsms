@@ -4,6 +4,7 @@ const helmet = require('helmet');
 const passport = require('passport');
 const AuthController = require('./controllers/AuthController');
 const SMSController = require('./controllers/SMSController');
+const PaymentController = require('./controllers/PaymentController');
 const mongoose = require('mongoose');
 const sms = require('./sms.js');
 const cors = require('cors');
@@ -62,8 +63,13 @@ app.get('/sms', function (req, res) {
   sms.sendSMS();
   res.json('SMS')
 })
+app.post('/message/send/authenticated', SMSController.sendMessageAuth);
+app.post('/message/send/unauthenticated', SMSController.sendMessageNotAuth);
 app.post('/number/check', SMSController.checkNumber);
 app.post('/number/price',SMSController.getPriceForNumber);
+
+app.post('/order/get',PaymentController.GetOrder);
+
 app.get('/', function (req, res) {
   res.send('hello world')
 })

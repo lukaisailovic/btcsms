@@ -15,20 +15,14 @@ module.exports = {
    checkNumber
 }
 
- function sendSMS(){
+ function sendSMS(number,body){
 
-
-  getPrice('+381 64 029 3558').then((price)=>{
-
-    client.messages.create({
-        body: 'This message should have a price of '+price+' USD',
-        to: '+381640293558',  // Text this number
-        from: process.env.TWILIO_NUMBER // From a valid Twilio number
-    })
-    .then((message) => console.log(message.sid)).catch((err) => console.log(err));
-
-  }).catch((err)=>console.log(err))
-
+      client.messages.create({
+          body: body,
+          to: number,  // Text this number
+          from: process.env.TWILIO_NUMBER // From a valid Twilio number
+      })
+      .then((message) => console.log(message.sid)).catch((err) => console.log(err));
 
 
 

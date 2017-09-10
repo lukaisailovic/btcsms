@@ -1,8 +1,11 @@
 const sms = require('../sms.js');
 const phone = require('phone');
+const PaymentController = require('./PaymentController');
 module.exports = {
   checkNumber,
-  getPriceForNumber
+  getPriceForNumber,
+  sendMessageAuth,
+  sendMessageNotAuth
 
 };
 
@@ -38,5 +41,28 @@ function getPriceForNumber(req,res) {
       res.json({success:false,message:'Number is not valid'})
     }
 
+  }
+}
+
+function sendMessageAuth(req,res) {
+  if (req.body.number == null || req.body.number == "" || req.body.body == null || req.body.body == "") {
+    res.json({success:false,message:'Please provide number and message body'})
+  } else {
+    sms.sendSMS(req.body.number,req.body.body)
+  }
+}
+function sendMessageNotAuth(req,res) {
+  if (req.body.number == null || req.body.number == "" || req.body.body == null || req.body.body == "") {
+    res.json({success:false,message:'Please provide number and message body'})
+  } else {
+    console.log('BEFORE CREATE ORDER')
+    // sms.sendSMS(req.body.number,req.body.body)
+      PaymentController.CreateOrder(req.body.number,req.body.body,req.body.price).then((response)=>{
+        console.log('TRUE')
+      res.json({success:true,message: 'Order Created',order: response.order})
+    }).catch((err)=>{
+        console.log('FALSE')
+      res.json({success:false,message: 'Order is not created'})
+    });
   }
 }
