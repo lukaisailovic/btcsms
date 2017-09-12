@@ -1,4 +1,6 @@
 
+const Order = require('./models/order.js');
+
 const phone = require('phone');
 const countries = require('i18n-iso-countries');
 
@@ -15,14 +17,23 @@ module.exports = {
    checkNumber
 }
 
- function sendSMS(number,body){
-
+ function sendSMS(number,body,order){
+      let ord = order;
       client.messages.create({
           body: body,
           to: number,  // Text this number
           from: process.env.TWILIO_NUMBER // From a valid Twilio number
       })
-      .then((message) => console.log(message.sid)).catch((err) => console.log(err));
+      .then((message) => {
+
+      if (ord !== null && ord !== undefined) {
+        Order.findByIdAndUpdate(ord.id, { $set: { sent: true }}, { new: true }, function (err, doc) {
+            console.log(message.sid)
+          });
+      }
+
+
+      }).catch((err) => console.log(err));
 
 
 

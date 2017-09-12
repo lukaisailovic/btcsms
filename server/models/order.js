@@ -1,6 +1,6 @@
-const BlockIo  = require('block_io');
-const version = 2;
-const block_io = new BlockIo(process.env.BLOCK_IO_API_KEY, process.env.BLOCK_IO_PIN, version);
+
+const blocktrail = require('blocktrail-sdk');
+const client = blocktrail.BlocktrailSDK({apiKey: process.env.BLOCKTRAIL_API_KEY, apiSecret: process.env.BLOCKTRAIL_API_SECRET, network: "BTC", testnet: true});
 
 const mongoose = require('mongoose');
 const sha256 = require('js-sha256');
@@ -32,6 +32,7 @@ const OrderSchema = new mongoose.Schema({
       },
       btcaddress:{
         type: String,
+        default: null,
       },
       paid:{
         type: Boolean,
@@ -45,22 +46,49 @@ const OrderSchema = new mongoose.Schema({
 
 OrderSchema.pre('save',function(next){
     let order = this;
-    block_io.get_new_address({'label': order.id},function(error, data) {
-      order.btcaddress = data.data.address;
-      block_io.archive_address({'address': order.btcaddress}, function(error,data) {
-        return next()
-      });
-    });
-    order.hash = sha256(order.id)
+    if (order.btcaddress == null) {
 
-    axios.get('https://blockchain.info/ticker',).then((response) => {
-          let btcprice = response.data.USD.last;
-          order.btcprice = Math.round (order.price/btcprice * 100000000) / 100000000;
-        }).catch((err)=>{});
+      client.initWallet(process.env.BLOCKTRAIL_WALLET_ID,process.env.BLOCKTRAIL_WALLET_PASS,
+      function(err, wallet) {
+        wallet.getNewAddress(function(err, address) {
+          order.btcaddress = address;
+          order.hash = sha256(order.id)
+          axios.get('https://blockchain.info/ticker',).then((response) => {
+                let btcprice = response.data.USD.last;
+                order.btcprice = Math.round (order.price/btcprice * 100000000) / 100000000;
+                return next();
+              }).catch((err)=>{});
+        });
+      });
+
+    }
 
 });
 
+OrderSchema.methods.checkIfOrderIsPaid = function checkIfOrderIsPaid () {
+  let that = this;
+  return new Promise(function(resolve, reject) {
 
+    client.address(that.btcaddress,
+    function(err, address) {
+
+      if (err) {
+        reject()
+      } else {
+        console.log('BALANCE  '+blocktrail.toBTC(address.balance))
+        if (blocktrail.toBTC(address.balance) >= that.btcprice) {
+          resolve()
+        } else {
+          reject()
+        }
+      }
+
+     });
+
+
+
+  });
+};
 
 
 module.exports = mongoose.model('Order',OrderSchema);

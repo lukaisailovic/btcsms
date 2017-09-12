@@ -63,13 +63,13 @@ app.get('/sms', function (req, res) {
   sms.sendSMS();
   res.json('SMS')
 })
-app.post('/message/send/authenticated', SMSController.sendMessageAuth);
+app.post('/message/send/authenticated',passport.authenticate('jwt', { session: false }), SMSController.sendMessageAuth);
 app.post('/message/send/unauthenticated', SMSController.sendMessageNotAuth);
 app.post('/number/check', SMSController.checkNumber);
 app.post('/number/price',SMSController.getPriceForNumber);
 
 app.post('/order/get',PaymentController.GetOrder);
-
+app.post('/order/check',PaymentController.CheckOrder);
 app.get('/', function (req, res) {
   res.send('hello world')
 })
