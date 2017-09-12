@@ -40,8 +40,11 @@ require('./passport.js')(passport);
 /**
  * Database
  */
-mongoose.connect(process.env.DATABASE_URL);
-
+mongoose.Promise = global.Promise;
+mongoose.connect(process.env.DATABASE_URL,{
+  useMongoClient: true,
+  promiseLibrary: global.Promise
+});
 /**
  * Routes
  */
