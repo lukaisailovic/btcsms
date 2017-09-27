@@ -62,10 +62,7 @@ app.get('/dashboard', passport.authenticate('jwt', { session: false }), function
   res.json({success:true ,message:'It worked! User id is: ' + req.user._id + '.'});
 });
 
-app.get('/sms', function (req, res) {
-  sms.sendSMS();
-  res.json('SMS')
-})
+
 app.post('/message/send/authenticated',passport.authenticate('jwt', { session: false }), SMSController.sendMessageAuth);
 app.post('/message/send/unauthenticated', SMSController.sendMessageNotAuth);
 app.post('/number/check', SMSController.checkNumber);
@@ -80,5 +77,5 @@ app.get('/', function (req, res) {
 app.use('/auth', AuthRoutes);
 
 app.listen(3000, function () {
-  console.log('App ['+process.env.APP_NAME+'] listent on port 3000')
+  console.log('App ['+process.env.APP_NAME+'] listening on port 3000')
 })
