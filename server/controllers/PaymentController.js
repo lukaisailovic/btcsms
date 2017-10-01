@@ -103,9 +103,10 @@ function CheckUserBalance(req,res) {
     if (err || !user) {
       res.json({success:false,message:'Could not find user',})
     } else {
-      user.checkIfBalanceIsUpdated().then((newBalance,lastCredited)=>{
-        console.log('RECEIVED NEW BALANCE '+newBalance+' AND LAST CREDITED '+lastCredited)
-        User.findByIdAndUpdate(user.id, { $set: { balance: newBalance }}, { lastCredited: lastCredited }, function (err, updatedUser) {
+      user.checkIfBalanceIsUpdated().then((payload)=>{
+        console.log('RECEIVED PAYLOAD')
+        console.log(payload)
+          User.findByIdAndUpdate(user.id, { $set: { balance: payload.newBalance,lastCredited: payload.addressBalance }}, {new: true}, function (err, updatedUser) {
 
             res.json({success:true,message: 'User balance updated'})
           });

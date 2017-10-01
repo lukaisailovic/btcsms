@@ -9,13 +9,13 @@ module.exports = function(passport) {
   opts.jwtFromRequest = ExtractJwt.fromAuthHeaderAsBearerToken();
   opts.secretOrKey = process.env.JWT_SECRET;
   passport.use(new JwtStrategy(opts, function(jwt_payload, done) {
-    console.log('PAYLOAD RECEIVED: '+jwt_payload._doc.username)
+
     User.findOne({username: jwt_payload._doc.username}, function(err, user) {
       if (err) {
         return done(err, false);
       }
       if (user) {
-        console.log('USER ' + user.username)
+      
         done(null, user);
       } else {
         console.log('USER NOT FOUND')

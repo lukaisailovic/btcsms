@@ -94,15 +94,20 @@ UserSchema.methods.checkIfBalanceIsUpdated = function checkIfBalanceIsUpdated ()
         reject()
       } else {
         let addressBalance = blocktrail.toBTC(address.received);
-        console.log(address)
-        if (addressBalance > that.lastCredited) {
-          let balanceDifference = addressBalance - that.lastCredited;
-          let newBalance = that.balance + balanceDifference
+        console.log(addressBalance - that.lastCredited)
+        if (addressBalance > that.lastCredited ) {
+            let balanceDifference = addressBalance - that.lastCredited;
+            let newBalance = that.balance + balanceDifference
               axios.get('https://blockchain.info/ticker',).then((response) => {
                 let btcprice = response.data.USD.last;
-                console.log('I SHOULD UPDATE USER BALANCE TO '+newBalance*btcprice+' AND LAST CREDITED TO' +addressBalance)
+                console.log('SHOULD UPDATE USER BALANCE TO '+balanceDifference*btcprice+' AND LAST CREDITED TO ' +addressBalance)
+                let newBalance = that.balance + balanceDifference*btcprice
                 //order.btcprice = Math.round (order.price/btcprice * 100000000) / 100000000;
-                resolve(newBalance*btcprice,addressBalance)
+                let payload = {
+                  newBalance: newBalance,
+                  addressBalance: addressBalance
+                }
+                resolve(payload)
               }).catch((err)=>{});
 
         } else {
