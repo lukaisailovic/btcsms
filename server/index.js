@@ -70,6 +70,8 @@ app.post('/number/price',SMSController.getPriceForNumber);
 
 app.post('/order/get',PaymentController.GetOrder);
 app.post('/order/check',PaymentController.CheckOrder);
+
+app.post('/balance/check',passport.authenticate('jwt', { session: false }),PaymentController.CheckUserBalance);
 app.get('/', function (req, res) {
   res.send('hello world')
 })

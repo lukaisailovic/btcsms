@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcrypt-nodejs');
 const blocktrail = require('blocktrail-sdk');
 const client = blocktrail.BlocktrailSDK({apiKey: process.env.BLOCKTRAIL_API_KEY, apiSecret: process.env.BLOCKTRAIL_API_SECRET, network: "BTC", testnet: true});
-
+const axios = require('axios');
 /**
  * User Schema
  */
@@ -18,6 +18,10 @@ const UserSchema = new mongoose.Schema({
       required: true,
     },
     balance: {
+      type: Number,
+      default: 0,
+    },
+    lastCredited: {
       type: Number,
       default: 0,
     },
@@ -78,5 +82,37 @@ UserSchema.methods.comparePassword = function(pw,cb){
     }
 
 }
+
+
+UserSchema.methods.checkIfBalanceIsUpdated = function checkIfBalanceIsUpdated () {
+  let that = this;
+  return new Promise(function(resolve, reject) {
+    client.address(that.btcaddress,
+    function(err, address) {
+
+      if (err) {
+        reject()
+      } else {
+        let addressBalance = blocktrail.toBTC(address.received);
+        console.log(address)
+        if (addressBalance > that.lastCredited) {
+          let balanceDifference = addressBalance - that.lastCredited;
+          let newBalance = that.balance + balanceDifference
+              axios.get('https://blockchain.info/ticker',).then((response) => {
+                let btcprice = response.data.USD.last;
+                console.log('I SHOULD UPDATE USER BALANCE TO '+newBalance*btcprice+' AND LAST CREDITED TO' +addressBalance)
+                //order.btcprice = Math.round (order.price/btcprice * 100000000) / 100000000;
+                resolve(newBalance*btcprice,addressBalance)
+              }).catch((err)=>{});
+
+        } else {
+          reject()
+        }
+      }
+
+     });
+
+  });
+};
 
 module.exports = mongoose.model('User',UserSchema);

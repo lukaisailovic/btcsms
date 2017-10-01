@@ -1,10 +1,12 @@
 const sms = require('../sms.js');
 
 const Order = require('../models/order.js');
+const User = require('../models/user.js');
 module.exports = {
 CreateOrder,
 GetOrder,
-CheckOrder
+CheckOrder,
+CheckUserBalance
 
 };
 
@@ -90,5 +92,27 @@ function CheckOrder(req, res) {
       });
 
     }
+  });
+}
+
+
+function CheckUserBalance(req,res) {
+  User.findOne({
+    username: req.user.username
+  },function(err,user) {
+    if (err || !user) {
+      res.json({success:false,message:'Could not find user',})
+    } else {
+      user.checkIfBalanceIsUpdated().then((newBalance,lastCredited)=>{
+        console.log('RECEIVED NEW BALANCE '+newBalance+' AND LAST CREDITED '+lastCredited)
+        User.findByIdAndUpdate(user.id, { $set: { balance: newBalance }}, { lastCredited: lastCredited }, function (err, updatedUser) {
+
+            res.json({success:true,message: 'User balance updated'})
+          });
+      }).catch(()=>{
+        res.json({success:false,message:'User found, but balance is not updated'})
+      })
+    }
+
   });
 }
