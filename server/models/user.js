@@ -98,7 +98,7 @@ UserSchema.methods.checkIfBalanceIsUpdated = function checkIfBalanceIsUpdated ()
         if (addressBalance > that.lastCredited ) {
             let balanceDifference = addressBalance - that.lastCredited;
             let newBalance = that.balance + balanceDifference
-              axios.get('https://blockchain.info/ticker',).then((response) => {
+              axios.get('https://blockchain.info/ticker').then((response) => {
                 let btcprice = response.data.USD.last;
                 console.log('SHOULD UPDATE USER BALANCE TO '+balanceDifference*btcprice+' AND LAST CREDITED TO ' +addressBalance)
                 let newBalance = that.balance + balanceDifference*btcprice

@@ -53,7 +53,7 @@ OrderSchema.pre('save',function(next){
         wallet.getNewAddress(function(err, address) {
           order.btcaddress = address;
           order.hash = sha256(order.id)
-          axios.get('https://blockchain.info/ticker',).then((response) => {
+          axios.get('https://blockchain.info/ticker').then((response) => {
                 let btcprice = response.data.USD.last;
                 order.btcprice = Math.round (order.price/btcprice * 100000000) / 100000000;
                 return next();
